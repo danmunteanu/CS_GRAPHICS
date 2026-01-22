@@ -34,12 +34,10 @@
             tableLayoutPanel1 = new TableLayoutPanel();
             btnRender = new Button();
             tableLayoutLeft = new TableLayoutPanel();
-            txtResults = new TextBox();
             tableLayoutMain.SuspendLayout();
             tableLayoutRight.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox).BeginInit();
             tableLayoutPanel1.SuspendLayout();
-            tableLayoutLeft.SuspendLayout();
             SuspendLayout();
             // 
             // tableLayoutMain
@@ -113,7 +111,6 @@
             // 
             tableLayoutLeft.ColumnCount = 1;
             tableLayoutLeft.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutLeft.Controls.Add(txtResults, 0, 1);
             tableLayoutLeft.Dock = DockStyle.Fill;
             tableLayoutLeft.Location = new Point(3, 3);
             tableLayoutLeft.Name = "tableLayoutLeft";
@@ -124,15 +121,6 @@
             tableLayoutLeft.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
             tableLayoutLeft.Size = new Size(355, 588);
             tableLayoutLeft.TabIndex = 3;
-            // 
-            // txtResults
-            // 
-            txtResults.Dock = DockStyle.Fill;
-            txtResults.Location = new Point(3, 48);
-            txtResults.Multiline = true;
-            txtResults.Name = "txtResults";
-            txtResults.Size = new Size(349, 311);
-            txtResults.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -146,8 +134,6 @@
             tableLayoutRight.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox).EndInit();
             tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutLeft.ResumeLayout(false);
-            tableLayoutLeft.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -159,6 +145,5 @@
         private TableLayoutPanel tableLayoutRight;
         private TableLayoutPanel tableLayoutPanel1;
         private TableLayoutPanel tableLayoutLeft;
-        private TextBox txtResults;
     }
 }
