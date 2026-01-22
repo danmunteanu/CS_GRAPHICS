@@ -178,23 +178,50 @@ namespace CS_GRAPHICS
 
         private void btnRender_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < 3;  i++)
+            txtResults.Clear();
+            txtResults.AppendText("Starting Benchmarks (UI will lock...)\r\n");
+            txtResults.Update(); // Forces the textbox to show this text before the lock begins
+
+            // --- 1. WARM UP ---
+            // We run the code once to let the JIT (Just-In-Time) compiler 
+            // translate the IL code to Machine Code. 
+            RenderMandelbrot();
+            RenderSlowMandelbrot();
+
+            // --- 2. BENCHMARK LOCKBITS ---
+            long totalFast = 0;
+            for (int i = 0; i < 3; i++)
             {
                 Stopwatch sw = Stopwatch.StartNew();
                 RenderMandelbrot();
                 sw.Stop();
-                string result = string.Format("RenderMandelbrot (LockBits): {0} ms", sw.ElapsedMilliseconds);
-                txtResults.Text += result;
-            }
 
+                totalFast += sw.ElapsedMilliseconds;
+                txtResults.AppendText($"Fast (LockBits) Run {i + 1}: {sw.ElapsedMilliseconds}ms\r\n");
+            }
+            long avgFast = totalFast / 3;
+
+            txtResults.AppendText("--------------------------\r\n");
+
+            // --- 3. BENCHMARK SETPIXEL ---
+            long totalSlow = 0;
             for (int i = 0; i < 3; i++)
             {
                 Stopwatch sw = Stopwatch.StartNew();
                 RenderSlowMandelbrot();
                 sw.Stop();
-                string result = string.Format("RenderSlowMandelbrot (LockBits): {0} ms", sw.ElapsedMilliseconds);
-                txtResults.Text += result;
+
+                totalSlow += sw.ElapsedMilliseconds;
+                txtResults.AppendText($"Slow (SetPixel) Run {i + 1}: {sw.ElapsedMilliseconds}ms\r\n");
             }
+            long avgSlow = totalSlow / 3;
+
+            // --- 4. SUMMARY ---
+            double speedup = (double)avgSlow / avgFast;
+            txtResults.AppendText("--------------------------\r\n");
+            txtResults.AppendText($"Average Fast: {avgFast}ms\r\n");
+            txtResults.AppendText($"Average Slow: {avgSlow}ms\r\n");
+            txtResults.AppendText($"Optimization is {speedup:F1}x faster.\r\n");
         }
     }
 }
