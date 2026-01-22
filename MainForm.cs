@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace CS_GRAPHICS
 {
@@ -24,7 +25,7 @@ namespace CS_GRAPHICS
 
             this.CenterToScreen();
 
-            //RenderMandelbrot();
+            RenderMandelbrot();
         }
 
         private void RenderMandelbrot()
@@ -41,10 +42,10 @@ namespace CS_GRAPHICS
             //  Create temp byte array to hold our color data
             byte[] rgbValues = new byte[bytes];
 
-            for (int y = 0; y < _imageHeight; y++)
+            Parallel.For(0, _imageHeight, y =>
             {
                 //  Pre-calculation: Find the start of the row in the flat array
-                int rowOffset = y * bmpData.Stride;
+                int rowOffset = (int)y * bmpData.Stride;
 
                 for (int x = 0; x < _imageWidth; x++)
                 {
@@ -96,7 +97,7 @@ namespace CS_GRAPHICS
                         rgbValues[index + 3] = 255;         //  A
                     }
                 }
-            }
+            });
 
             //  "teleport' the entire byte array into the Bitmap's memory address
             //  Scan0 is the memory address of the first pixel
