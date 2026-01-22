@@ -1,0 +1,10 @@
+﻿/*  Squaring a complex number
+*  Z = x + yi
+*  Z^2 = (x + yi) * (x + yi)
+*         x * x + x * y * i + x * y * i + y * y * i * i
+*         x^2 + 2 * x * y * i - y^2
+*         (x^2 - y^2) + (2 * x * y) * i
+*         
+* Adding a constant to a complex number
+*  Z^2 + c = (x^2 - y^2 + a) + (2 * x * y + b) * i
+*/

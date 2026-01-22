@@ -1,3 +1,6 @@
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+
 namespace CS_GRAPHICS
 {
     public partial class MainForm : Form
@@ -27,12 +30,25 @@ namespace CS_GRAPHICS
         {
             Bitmap bmp = new Bitmap(_imageWidth, _imageHeight);
 
-            //  3. Loop though every pixel on the screen
-            for (int x = 0; x < _imageWidth; x++)
+            //  Lock the Bitmap's memory
+            Rectangle rect = new Rectangle(0, 0, _imageWidth, _imageHeight);
+            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+
+            //  Calculate how many bytes we need to store the whole image
+            int bytes = Math.Abs(bmpData.Stride) * _imageHeight;
+
+            //  Create temp byte array to hold our color data
+            byte[] rgbValues = new byte[bytes];
+
+            for (int y = 0; y < _imageHeight; y++)
             {
-                for (int y = 0; y < _imageHeight; y++)
+                //  Pre-calculation: Find the start of the row in the flat array
+                int rowOffset = y * bmpData.Stride;
+
+                for (int x = 0; x < _imageWidth; x++)
                 {
                     //  4. Convert pixel (x, y) to a complex number (a + bi)
+                    //  Map from image to complex plane
                     double a = _viewportMinX + (x * (_viewportMaxX - _viewportMinX) / _imageWidth);
                     double b = _viewportMinY + (y * (_viewportMaxY - _viewportMinY) / _imageHeight);
 
@@ -42,24 +58,8 @@ namespace CS_GRAPHICS
                     double zy = 0;
 
                     int iterations = 0;
-                    while (iterations < _maxIterations)
+                    while (iterations < _maxIterations && (zx * zx + zy * zy < 4.0))
                     {
-                        //  Check the distance from origin
-                        //  Did the point escape?
-                        if (zx * zx + zy * zy > 4.0)
-                            break;
-
-                        /*  Squaring a complex number
-                         *  Z = x + yi
-                         *  Z^2 = (x + yi) * (x + yi)
-                         *         x * x + x * y * i + x * y * i + y * y * i * i
-                         *         x^2 + 2 * x * y * i - y^2
-                         *         (x^2 - y^2) + (2 * x * y) * i
-                         *         
-                         * Adding a constant to a complex number
-                         *  Z^2 + c = (x^2 - y^2 + a) + (2 * x * y + b) * i
-                         */
-
                         //  Compute the next Z
                         //  this is the result of Z^2 + (a + bi)
                         //  (zx + zyi)^2 ... 
@@ -72,21 +72,38 @@ namespace CS_GRAPHICS
                         iterations++;
                     }
 
+                    //  Calculate the pixel index
+                    //  Each pixel has bytes. 
+                    //  [index] = Blue, [index + 1] = Green, [Index + 2] = Red, [Index + 3] = Alpha
+                    int index = rowOffset + (x * 4);
+
                     if (iterations == _maxIterations)
                     {
-                        //  paint the pixel black
-                        bmp.SetPixel(x, y, Color.Black);
-
-                        
+                        rgbValues[index] = 0;           //  B
+                        rgbValues[index + 1] = 0;       //  G
+                        rgbValues[index + 2] = 0;       //  R
+                        rgbValues[index + 3] = 255;     //  A
                     }
                     else
                     {
                         //  simple grayscale color
-                        int colorVal = (int)(255 * (double)iterations / _maxIterations);
-                        bmp.SetPixel(x, y, Color.FromArgb(colorVal, colorVal, colorVal));
+                        byte colorVal = (byte)(255 * (double)iterations / _maxIterations);
+
+                        rgbValues[index] = colorVal;        //  B
+                        rgbValues[index + 1] = colorVal;    //  G
+                        rgbValues[index + 2] = colorVal;    //  R
+                        rgbValues[index + 3] = 255;         //  A
                     }
                 }
             }
+
+            //  "teleport' the entire byte array into the Bitmap's memory address
+            //  Scan0 is the memory address of the first pixel
+            //  Instead of moving one pixel at a time, we move the entire image data
+            //  in a very fast operation
+            Marshal.Copy(rgbValues, 0, bmpData.Scan0, bytes);
+
+            bmp.UnlockBits(bmpData);
 
             pictureBox.Image = bmp;
         }
