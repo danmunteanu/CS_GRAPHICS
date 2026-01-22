@@ -78,6 +78,7 @@
             pictureBox.Location = new Point(3, 48);
             pictureBox.Name = "pictureBox";
             pictureBox.Size = new Size(726, 492);
+            pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
             pictureBox.TabIndex = 0;
             pictureBox.TabStop = false;
             // 
@@ -104,6 +105,7 @@
             btnRender.TabIndex = 1;
             btnRender.Text = "RENDER";
             btnRender.UseVisualStyleBackColor = true;
+            btnRender.Click += btnRender_Click;
             // 
             // tableLayoutLeft
             // 
