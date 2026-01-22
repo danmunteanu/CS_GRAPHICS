@@ -1,0 +1,26 @@
+﻿* The problem with SetPixel
+* Bounds Checking
+* Color format validation
+* Locking the bitmap
+*  Huge performance penalty!
+*  
+*  800x600
+*      480000 times per frame
+*
+
+/*
+    * GDI+
+    *  Marshal -> talk to unmanaged C++ code -> graphics driver
+    *      tiny toothpick 
+    */
+
+//  The alternative? 
+//      LockBits
+//          massive paint roller
+
+/*
+*  No support for parallelism
+*      Bitmap is not thread-safe!
+*      Parallel.For + SetPixe -> corrupts the internal GDI+ object
+*      Stuck with only one CPU core
+*/
