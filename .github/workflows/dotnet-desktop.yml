@@ -1,0 +1,34 @@
+name: Build WinForms App
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Install .NET 10
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # 3. Restore dependencies
+      - name: Restore
+        run: dotnet restore CS_GRAPHICS.slnx
+
+      # 4. Build solution
+      - name: Build
+        run: dotnet build CS_GRAPHICS.slnx --configuration ${{ matrix.configuration }} --no-restore
