@@ -1,9 +1,7 @@
-name: Build WinForms App
+name: Build Mandel Fractals App
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
     branches: [ "master" ]
 
 jobs:
@@ -12,23 +10,30 @@ jobs:
 
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        configuration: [Release]   # Only Release for real builds
 
     steps:
-      # 1. Checkout repo
+      # Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Install .NET 10
+      # Install .NET 10
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
 
-      # 3. Restore dependencies
+      # Restore dependencies
       - name: Restore
         run: dotnet restore CS_GRAPHICS.slnx
 
-      # 4. Build solution
-      - name: Build
-        run: dotnet build CS_GRAPHICS.slnx --configuration ${{ matrix.configuration }} --no-restore
+      # Publish real executable (self-contained, single file)
+      - name: Publish EXE
+        run: dotnet publish CS_GRAPHICS.slnx -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+
+      # Upload artifact
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MandelFractals-App
+          path: publish/
